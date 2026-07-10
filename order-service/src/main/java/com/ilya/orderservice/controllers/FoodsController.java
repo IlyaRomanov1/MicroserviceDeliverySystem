@@ -11,10 +11,13 @@ import com.ilya.orderservice.util.exceptions.FoodNotFoundException;
 import com.ilya.orderservice.util.exceptions.FoodNotUpdatedException;
 import com.ilya.orderservice.util.validators.FoodCreateValidator;
 import com.ilya.orderservice.util.validators.FoodUpdateValidator;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Tag(name = "Methods from FoodsController")
 @RestController
 @RequestMapping("/foods")
 @RequiredArgsConstructor
@@ -36,6 +40,10 @@ public class FoodsController {
         return foodsService.findOne(id);
     }
 
+    @Operation(
+            summary = "получение меню",
+            description = "Достает всю еду из БД"
+    )
     @GetMapping
     public List<FoodDto> index(){
         return foodsService.findAll();
