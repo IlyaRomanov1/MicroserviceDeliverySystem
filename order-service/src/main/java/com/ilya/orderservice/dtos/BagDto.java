@@ -1,7 +1,5 @@
 package com.ilya.orderservice.dtos;
 
-import com.ilya.orderservice.models.Food;
-import com.ilya.orderservice.models.User;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;

@@ -80,7 +80,25 @@ services:
       - "5433:5432"
     volumes:
       - order-db-data:/var/lib/postgresql/data
-      - ./order-service/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  auth-db:
+    image: postgres:15
+    container_name: auth-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: auth_service_db
+    ports:
+      - "5435:5432"
+    volumes:
+      - auth-db-data:/var/lib/postgresql/data
     networks:
       - app-network
     healthcheck:
@@ -109,6 +127,27 @@ services:
       timeout: 5s
       retries: 5
 
+  auth-service:
+    build:
+      context: ./auth-service
+      dockerfile: Dockerfile
+    container_name: auth-service
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://auth-db:5432/auth_service_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      JWT_SECRET: 719a7a28-b672-459b-adca-1c133ee9bf08
+      ADMIN_EMAIL: admin@example.com
+      ADMIN_PASSWORD: admin12345
+      ADMIN_NAME: Admin
+    depends_on:
+      auth-db:
+        condition: service_healthy
+    networks:
+      - app-network
+
   order-service:
     build:
       context: ./order-service
@@ -121,6 +160,7 @@ services:
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
       KAFKA_BOOTSTRAP_SERVERS: kafka-1:9090,kafka-2:9090,kafka-3:9090
+      JWT_SECRET: 719a7a28-b672-459b-adca-1c133ee9bf08
     depends_on:
       order-db:
         condition: service_healthy
@@ -157,9 +197,24 @@ services:
     networks:
       - app-network
 
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - auth-service
+      - order-service
+      - notification-service
+    networks:
+      - app-network
+
 volumes:
   kafka-1_data:
   kafka-2_data:
   kafka-3_data:
   order-db-data:
   notification-db-data:
+  auth-db-data:

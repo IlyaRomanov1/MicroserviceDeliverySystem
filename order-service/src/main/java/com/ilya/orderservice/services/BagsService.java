@@ -2,10 +2,8 @@ package com.ilya.orderservice.services;
 
 import com.ilya.orderservice.dtos.BagDto;
 import com.ilya.orderservice.models.Bag;
-import com.ilya.orderservice.models.User;
 import com.ilya.orderservice.repositories.BagsRepository;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,13 +17,11 @@ import java.util.stream.Collectors;
 public class BagsService {
 
     private final BagsRepository bagsRepository;
-    private final ModelMapper modelMapper;
     private final FoodsService foodsService;
-    private final UserService userService;
 
-    public List<BagDto> findAll(User user){
-        return bagsRepository.findAllByUser(user)
-                .stream().map(e -> mapToBagDto(user, e)).collect(Collectors.toList());
+    public List<BagDto> findAll(Long userId){
+        return bagsRepository.findAllByUserId(userId)
+                .stream().map(this::mapToBagDto).collect(Collectors.toList());
     }
 
     @Transactional
@@ -47,17 +43,17 @@ public class BagsService {
     }
 
     @Transactional
-    public void delete(User user){
-        bagsRepository.deleteAllByUser(user);
+    public void clearCart(Long userId){
+        bagsRepository.deleteAllByUserId(userId);
     }
 
-    private BagDto mapToBagDto(User user, Bag bag){
-        return new BagDto(bag.getId(), user.getId(), bag.getFood().getId(), bag.getFood().getName(),
+    private BagDto mapToBagDto(Bag bag){
+        return new BagDto(bag.getId(), bag.getUserId(), bag.getFood().getId(), bag.getFood().getName(),
                 bag.getFood().getPrice(), bag.getQuantity());
     }
 
     private Bag mapToBag(BagDto bagDto){
-        return new Bag(bagDto.getId(), userService.findOne(bagDto.getUserId()),
+        return new Bag(bagDto.getId(), bagDto.getUserId(),
                 foodsService.findFoodById(bagDto.getFoodId()), bagDto.getQuantity());
     }
 }

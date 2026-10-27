@@ -113,5 +113,3 @@ public class FoodsController {
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 }
-
-//Нужно создать новых челов чтоб у них пароль был зашфирован и накинуть им bags и протестить

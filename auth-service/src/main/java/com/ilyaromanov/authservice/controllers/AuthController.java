@@ -8,6 +8,8 @@ import com.ilyaromanov.authservice.services.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,5 +36,10 @@ public class AuthController {
         AuthResponseDTO claims = authService.login(dto);
         String token = jwtUtil.generateToken(claims);
         return Map.of("jwt-token", token);
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    private ResponseEntity<Map<String, String>> handleException(BadCredentialsException e) {
+        return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.UNAUTHORIZED);
     }
 }

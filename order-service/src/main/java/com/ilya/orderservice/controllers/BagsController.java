@@ -6,7 +6,6 @@ import com.ilya.orderservice.models.Food;
 import com.ilya.orderservice.security.MyUserDetails;
 import com.ilya.orderservice.services.BagsService;
 import com.ilya.orderservice.services.FoodsService;
-import com.ilya.orderservice.services.MyUserDetailsService;
 import com.ilya.orderservice.util.exceptions.BagNotCreatedException;
 import com.ilya.orderservice.util.exceptions.BagNotUpdateExcpetion;
 import com.ilya.orderservice.util.exceptions.ErrorResponse;
@@ -32,7 +31,7 @@ public class BagsController {
 
     @GetMapping
     public List<BagDto> getUsersBags(@AuthenticationPrincipal MyUserDetails myUserDetails){
-        return bagsService.findAll(myUserDetails.getUser());
+        return bagsService.findAll(myUserDetails.getId());
     }
 
     @PostMapping
@@ -43,7 +42,7 @@ public class BagsController {
             throw new BagNotCreatedException(getErrorMessage(bindingResult));
         }
 
-        bagDto.setUserId(myUserDetails.getUser().getId());
+        bagDto.setUserId(myUserDetails.getId());
         Food food = foodsService.findFoodById(bagDto.getFoodId());
         bagDto.setFoodName(food.getName());
         bagDto.setFoodPrice(food.getPrice());

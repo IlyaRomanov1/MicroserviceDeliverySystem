@@ -9,6 +9,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -20,5 +22,11 @@ public class OrderService {
     @Transactional
     public void save(OrderCreatedEvent orderCreatedEvent){
         orderRepository.save(modelMapper.map(orderCreatedEvent, Order.class));
+    }
+
+    public OrderViewDto findByUserId(Long userId){
+        return orderRepository.findById(userId)
+                .map(order -> modelMapper.map(order, OrderViewDto.class))
+                .orElse(null);
     }
 }

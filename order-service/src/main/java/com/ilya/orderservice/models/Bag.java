@@ -1,7 +1,6 @@
 package com.ilya.orderservice.models;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,9 +20,8 @@ public class Bag {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
-    private User user;
+    @Column(name = "user_id")
+    private Long userId;
 
     @ManyToOne
     @JoinColumn(name = "food_id", referencedColumnName = "id")

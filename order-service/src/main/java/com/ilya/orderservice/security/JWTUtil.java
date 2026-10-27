@@ -12,10 +12,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class JWTUtil {
 
-    @Value("jwt_secret")
+    @Value("${jwt_secret}")
     private String secret;
 
-    private AuthRequestDTO validateTokenAndRetrieveClaims(String token){
+    public AuthRequestDTO validateTokenAndRetrieveClaims(String token){
         JWTVerifier verifier = JWT.require(Algorithm.HMAC256(secret))
                 .withSubject("Person details")
                 .withIssuer("auth-service")
@@ -24,7 +24,7 @@ public class JWTUtil {
         DecodedJWT jwt = verifier.verify(token);
         AuthRequestDTO dto = new AuthRequestDTO();
         dto.setId(jwt.getClaim("userId").asLong());
-        dto.setRole(Role.valueOf(String.valueOf(jwt.getClaim("role"))));
+        dto.setRole(Role.valueOf(jwt.getClaim("role").asString()));
         return dto;
     }
 }

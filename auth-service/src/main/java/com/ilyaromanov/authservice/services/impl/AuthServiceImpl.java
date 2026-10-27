@@ -9,6 +9,7 @@ import com.ilyaromanov.authservice.repositories.UserRepository;
 import com.ilyaromanov.authservice.services.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,8 +34,8 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public AuthResponseDTO login(AuthRequestDTO dto) {
         User user = userRepository.getUserByEmail(dto.getEmail());
-        if (passwordEncoder.matches(dto.getPassword(), user.getPassword()))
-            return modelMapper.map(user, AuthResponseDTO.class);
-        return null;
+        if (user == null || !passwordEncoder.matches(dto.getPassword(), user.getPassword()))
+            throw new BadCredentialsException("Неверный email или пароль");
+        return modelMapper.map(user, AuthResponseDTO.class);
     }
 }
